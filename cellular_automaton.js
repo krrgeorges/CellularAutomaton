@@ -1,12 +1,22 @@
 var drawMode = false;
 
-var bgColor = "red"
+var bgcolor = "red"
 var pencilColor = "blue"
 
 var n_generation = 0
 var epoch_mech = null
 
-function buildGrid(m,n,bgColor,pencilColor,randomized){
+var h = null
+var w = null
+
+var tds = {}
+
+function decideBorder(i,j){
+	var px = 0
+
+}
+
+function buildGrid(m,n,bgcolor,pencilColor,randomized){
 	document.getElementById("grid").innerHTML = ""
 	var table = document.createElement("table")
 	table.id = "mainGrid"
@@ -17,9 +27,11 @@ function buildGrid(m,n,bgColor,pencilColor,randomized){
 	    for(var j=0;j<=n-1;j++){
 	        var td = document.createElement("td")
 	        // td.style.border="0.01em solid black"
+	        td.style.borderLeft = "0.01em solid black"
+	        td.style.borderTop = "0.01em solid black"
 	        td.style.width="5px";td.style.height="5px";
-	        if(randomized == 1){td.style.backgroundColor = Math.floor(Math.random() * 2)==0?bgColor:pencilColor;}
-	        else{td.style.backgroundColor = bgColor}
+	        if(randomized == 1){td.style.backgroundColor = Math.floor(Math.random() * 2)==0?bgcolor:pencilColor;}
+	        else{td.style.backgroundColor = bgcolor}
 	        
 	        td.dataset.i = i
 	        td.dataset.j = j
@@ -45,14 +57,32 @@ function buildGrid(m,n,bgColor,pencilColor,randomized){
 }
 
 function obtainRelativeTD(table,xi,yj,tds){
-	var element = tds[xi.toString()+"_"+yj.toString()]==undefined?bgColor+"s":tds[xi.toString()+"_"+yj.toString()]
+	if(tds[xi.toString()+"_"+yj.toString()]==undefined){
+		if(xi < 0){
+			xi = h-1
+		}
+		if(xi > h-1){
+			xi = 0
+		}
+		if(yj < 0){
+			yj = w-1
+		}
+		if(yj > w-1){
+			yj = 0
+		}
+	}
+
+	var element = tds[xi.toString()+"_"+yj.toString()]
+	// var element = (table.getElementsByTagName("tr")[xi]!=undefined && table.getElementsByTagName("tr")[xi].getElementsByTagName("td")[yj]!=undefined)?table.getElementsByTagName("tr")[xi].getElementsByTagName("td")[yj].style.backgroundColor:bgcolor
 	return element
 }
+
+
 
 function simulate(){
 	var table = document.getElementById("mainGrid")
 	var mtds = table.getElementsByTagName("td")
-	var tds = {}
+	tds = {}
 	for(td in mtds){
 		try{
 			tds[mtds[td].id] = mtds[td].style.backgroundColor
@@ -69,7 +99,7 @@ function simulate(){
 		td = mtds[tdid]
 		populated = false
 		try{
-			if(td.style.backgroundColor != bgColor){populated = true}
+			if(td.style.backgroundColor != bgcolor){populated = true}
 		}
 		catch(err){
 			continue
@@ -106,8 +136,8 @@ function simulate(){
 			}
 		}
 		if(populated == true){
-			if(neighbors<=1){td.style.backgroundColor=bgColor}
-			if(neighbors>=4){td.style.backgroundColor=bgColor}
+			if(neighbors<=1){td.style.backgroundColor=bgcolor}
+			if(neighbors>=4){td.style.backgroundColor=bgcolor}
 			if(neighbors==2 || neighbors==3){td.style.backgroundColor=pencilColor}
 		}
 		else{
@@ -134,16 +164,18 @@ function stopGOL(){
 	}
 }
 
-var h = null
-var w = null
 
-$(document).ready(function(){
-	var h = Math.round(window.innerHeight/6)
-	var w = Math.round(window.innerWidth/5)
-	document.getElementById("bgColor").onchange=function(){bgColor=document.getElementById("bgColor").value;buildGrid(h,w,bgColor,pencilColor)}
-	document.getElementById("pencilColor").onchange=function(){pencilColor=document.getElementById("pencilColor").value;buildGrid(h,w,bgColor,pencilColor)}
-	document.getElementById("pattern_type").onchange=function(){buildGrid(h,w,bgColor,pencilColor,document.getElementById("pattern_type").value)}
-	buildGrid(h,w,bgColor,pencilColor,0)
+
+
+window.onload = function(){
+	h = Math.round(window.innerHeight/6)
+	w = Math.round(window.innerWidth/5)
+	console.log(h)
+	console.log(w)
+	document.getElementById("bgColor").onchange=function(){bgcolor=document.getElementById("bgColor").value;buildGrid(h,w,bgcolor,pencilColor)}
+	document.getElementById("pencilColor").onchange=function(){pencilColor=document.getElementById("pencilColor").value;buildGrid(h,w,bgcolor,pencilColor)}
+	document.getElementById("pattern_type").onchange=function(){buildGrid(h,w,bgcolor,pencilColor,document.getElementById("pattern_type").value)}
+	buildGrid(h,w,bgcolor,pencilColor,0)
 	document.getElementById("start").onclick = startGOL
 	document.getElementById("stop").onclick = stopGOL
-})
+}
